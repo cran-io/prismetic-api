@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 var Sensor   = require('./sensor');
 
-var raspiSchema = new Schema({
+var deviceSchema = new Schema({
   model: String, 
   active: {
     type: Boolean, 
@@ -22,5 +22,5 @@ var raspiSchema = new Schema({
   }
 });
 
-module.exports = mongoose.model('Raspi', raspiSchema);
+module.exports = mongoose.model('Device', deviceSchema);
 

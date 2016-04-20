@@ -1,11 +1,11 @@
 var express               = require('express');
 var router                = express.Router();
-var raspisController      = require('../controllers/raspis');
+var devicesController      = require('../controllers/devices');
 var sensorsController     = require('../controllers/sensors');
 var sensorsDataController = require('../controllers/sensorsData');
 
 module.exports = function(io) {
-  router.use(require('./raspis'));
+  router.use(require('./devices'));
   router.use(require('./sensors'));
   router.use(require('./sensorsData')(io));
 

@@ -1,4 +1,4 @@
-var Raspi  = require('../models/raspi');
+var Device  = require('../models/device');
 var Sensor = require('../models/sensor');
 
 exports.create = function(request, response) {
@@ -10,9 +10,9 @@ exports.create = function(request, response) {
     if (error) {
       response.send(error);
     } else {
-      Raspi.findById(request.params.raspi_id, function(error, raspi) {
-        raspi.sensors.push(sensor);
-        raspi.save(function(error) {
+      Device.findById(request.params.device_id, function(error, device) {
+        device.sensors.push(sensor);
+        device.save(function(error) {
           if (error) {
             response.send(error);
           } else {
@@ -25,12 +25,12 @@ exports.create = function(request, response) {
 };
 
 exports.index =  function(request, response) {
-  Raspi.findById(request.params.raspi_id, function(error, raspi) {
+  Device.findById(request.params.device_id, function(error, device) {
     if (error) {
       response.send(error);
     } else {
-      raspi.populate('sensors', function(error, raspi) {
-        response.send(raspi);
+      device.populate('sensors', function(error, device) {
+        response.send(device);
       });
     }
   });

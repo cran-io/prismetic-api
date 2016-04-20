@@ -1,13 +1,13 @@
-var Raspi      = require('../models/raspi');
+var Device      = require('../models/device');
 var Sensor     = require('../models/sensor');
 var SensorData = require('../models/sensorData');
 
 exports.index = function(request, response) {
-  Raspi.findById(request.params.raspi_id, function(error, raspi) {
+  Device.findById(request.params.device_id, function(error, device) {
     if (error) {
       response.send(error)
     } else {
-      var sensorId = raspi.sensors.find(function(sensorId) {
+      var sensorId = device.sensors.find(function(sensorId) {
         return sensorId == request.params.sensor_id;
       });
       if (sensorId != undefined) {
@@ -21,7 +21,7 @@ exports.index = function(request, response) {
           }
         })
       } else {
-        response.json({ message: 'No hay un sensor con ese ID en la raspi'});
+        response.json({ message: 'No hay un sensor con ese ID en la device'});
       }
     }
   });

@@ -1,7 +1,7 @@
 {
-  "name": "raspberry-api",
+  "name": "prismetic-api",
   "version": "1.0.0",
-  "description": "Simple node.js API for raspberrypi",
+  "description": "Node.js API for Prismetic project",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
