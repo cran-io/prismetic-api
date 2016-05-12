@@ -6,6 +6,10 @@ var sensorDataSchema = new Schema({
     type: Number,
     default: 0
   },
+  state: {
+    type: String,
+    enum: ['Entro', 'Salio']
+  },
   sentAt: {
     type: Date,
     default: Date.now
