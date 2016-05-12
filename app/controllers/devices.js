@@ -1,5 +1,5 @@
 var device   = require('../models/device');
-var exports = module.exports;
+var exports  = module.exports;
 
 exports.create = function(request, response) {
   device = new Device();

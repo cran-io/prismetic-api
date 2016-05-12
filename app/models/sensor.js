@@ -2,9 +2,11 @@ var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 
 var sensorSchema = new Schema({
-  pin: Number,
-  sensorType: String,
   active: Boolean,
+  sensorType: {
+    type: String, 
+    default: 'Count'
+  },
   sensorData: [{
     type: Schema.Types.ObjectId,
     ref: 'SensorData'
