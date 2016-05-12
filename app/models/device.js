@@ -3,7 +3,10 @@ var Schema   = mongoose.Schema;
 var Sensor   = require('./sensor');
 
 var deviceSchema = new Schema({
-  model: String, 
+  model: {
+    type: String,
+    required: true
+  }, 
   active: {
     type: Boolean, 
     default: false

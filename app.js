@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var mongoose   = require('mongoose');
 var io         = require('socket.io')(server);
 mongoose.connect('mongodb://localhost/raspberry-api-dev');
-//mongoose.connect('mongodb://raspi:raspi@ds011261.mlab.com:11261/iot-raspi-db');
+// mongoose.connect('mongodb://raspi:raspi@ds011261.mlab.com:11261/iot-raspi-db');
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));

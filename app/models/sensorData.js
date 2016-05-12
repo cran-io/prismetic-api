@@ -1,11 +1,8 @@
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
+var Sensor   = require('./sensor');
 
 var sensorDataSchema = new Schema({
-  value: {
-    type: Number,
-    default: 0
-  },
   state: {
     type: String,
     enum: ['Entro', 'Salio']
@@ -17,6 +14,10 @@ var sensorDataSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now
+  },
+  deviceId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Device'
   }
 });
 

@@ -1,37 +1,37 @@
 var Device  = require('../models/device');
 var Sensor = require('../models/sensor');
 
-exports.create = function(request, response) {
+exports.create = (request, response) => {
   var sensor = new Sensor();
   sensor.pin = request.body.pin;
   sensor.sensorType = request.body.sensorType;
   sensor.active = request.body.active;
-  sensor.save(function(error, sensor) {
-    if (error) {
-      response.send(error);
-    } else {
-      Device.findById(request.params.device_id, function(error, device) {
-        device.sensors.push(sensor);
-        device.save(function(error) {
-          if (error) {
-            response.send(error);
-          } else {
-            response.json({ message: 'Sensor creado satisfactoriamente' });
-          }
-        });
-      });
-    }
+  sensor.save((error, sensor) => {
+    if (error) return response.send(500, error);
+    request.device.sensors.push(sensor);
+    request.device.save((error) => {
+      if (error) return response.send(error);
+      response.json({ message: 'Sensor creado satisfactoriamente' });
+    });
   });
 };
 
-exports.index =  function(request, response) {
-  Device.findById(request.params.device_id, function(error, device) {
-    if (error) {
-      response.send(error);
-    } else {
-      device.populate('sensors', function(error, device) {
-        response.send(device);
-      });
-    }
+exports.index = (request, response) => {
+  request.device.populate('sensors', (error, device) => {
+    if (error) return response.send(500, error);
+    response.send(device);
+  });
+};
+
+exports.average = (request, response) => {
+  
+};
+
+exports.device = (request, response, next) => {
+  Device.findById(request.params.device_id, (error, device) => {
+    if(error) return response.send(500, {message: "Internal server error"});
+    if(!device) return response.send([]);
+    request.device = device;
+    next();
   });
 };
