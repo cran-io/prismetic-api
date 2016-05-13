@@ -3,9 +3,8 @@ var Schema   = mongoose.Schema;
 
 var sensorSchema = new Schema({
   active: Boolean,
-  sensorType: {
-    type: String, 
-    default: 'Count'
+  name: {
+    type: String
   },
   sensorData: [{
     type: Schema.Types.ObjectId,

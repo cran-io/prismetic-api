@@ -14,10 +14,6 @@ var sensorDataSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  deviceId: {
-    type: Schema.Types.ObjectId,
-    ref: 'Device'
   }
 });
 

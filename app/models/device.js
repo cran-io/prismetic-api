@@ -1,6 +1,5 @@
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
-var Sensor   = require('./sensor');
 
 var deviceSchema = new Schema({
   model: {

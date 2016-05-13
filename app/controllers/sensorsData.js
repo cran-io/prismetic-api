@@ -13,7 +13,7 @@ exports.index = (request, response) => {
     Sensor.findById(request.params.sensor_id, (error, sensor) => {
       if (error) return response.send(500, error);
       sensor.populate('sensorData', (error, sensor) => {
-        response.send(sensor);
+        response.send(sensor.sensorData);
       });
     })
   } else {
@@ -29,7 +29,6 @@ exports.create = (io) => {
       var sensorData = new SensorData();
       sensorData.sentAt = data.sentAt;
       sensorData.state = data.state;
-      sensorData.deviceId = new ObjectId(request.params.device_id);
       resp.push(sensorData);
       return resp;
     }, []);

@@ -2,6 +2,8 @@ var express           = require('express');
 var router            = express.Router();
 var sensorsController = require('../controllers/sensors');
 
+module.exports = () => {
+
 //Insert device to req.device for all requests /device/:device_id/**/**
 router.all('/devices/:device_id/*', sensorsController.device);
 
@@ -16,5 +18,5 @@ router.get('/devices/:device_id/average', sensorsController.average);
 
 //GET /api/:device_id/sensors/:sensor_id/count
 // router.get('/devices/:device_id/count', sensorsController.count);
-
-module.exports = router;
+  return router;
+}
