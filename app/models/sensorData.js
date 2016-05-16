@@ -3,9 +3,13 @@ var Schema   = mongoose.Schema;
 var Sensor   = require('./sensor');
 
 var sensorDataSchema = new Schema({
-  state: {
-    type: String,
-    enum: ['Entro', 'Salio']
+  enter: {
+    type: Number,
+    default: 0
+  },
+  exit: {
+    type: Number,
+    default: 0
   },
   sentAt: {
     type: Date,

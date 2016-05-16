@@ -15,7 +15,7 @@ exports.create = (request, response) => {
       account.devices.push(device);
       account.save((error, account) => {
         if(error) return res.send(500);
-        response.json({ message: 'Device creada satisfactoriamente!', device: device });
+        response.json(device);
       });
     });
   });
@@ -24,14 +24,7 @@ exports.create = (request, response) => {
 exports.index = (request, response) => {
   Device.find((error, devices) => {
     if (error) return response.send(500, error);
-    response.send(devices.map((device) => {
-      return {
-        id: device._id,
-        model: device.model, 
-        active: device.active,
-        sensors: device.sensors.length
-      }
-    }));
+    response.send(devices);
   });
 };
 

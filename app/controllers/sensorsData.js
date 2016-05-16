@@ -26,9 +26,7 @@ exports.create = (io) => {
     var sensorId = request.params.sensor_id;
     request.body = Array.isArray(request.body) ? request.body : [request.body];
     var sensorsData = request.body.reduce((resp, data) => {
-      var sensorData = new SensorData();
-      sensorData.sentAt = data.sentAt;
-      sensorData.state = data.state;
+      var sensorData = new SensorData(data);
       resp.push(sensorData);
       return resp;
     }, []);
@@ -39,7 +37,7 @@ exports.create = (io) => {
         sensor.sensorData = sensor.sensorData.concat(sensorIds);
         sensor.save((error) => {
           if (error) return response.send(error);
-          response.json({ message: 'Datos creados satisfactoriamente' });
+          response.json(sensorsData);
           sensorsData.forEach((sensorData) => {
             io.emit(sensorId, { data: [sensorData.value, sensorData.sentAt]});
           });

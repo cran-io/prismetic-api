@@ -24,8 +24,8 @@ Dex Server
   createdAt: Date,
   name: String,
   address: String,
-  users: [ids],
-  devices: [ids]
+  users: [String],
+  devices: [String]
 }
 ```
 
@@ -34,9 +34,10 @@ Dex Server
 {
   _id: String,
   createdAt: Date,
+  updatedAt: Date,
   model: String,
   active: Boolean,
-  sensors: [ids]
+  sensors: [String]
 }
 ```
 
@@ -48,7 +49,7 @@ Dex Server
   createdAt: Date,
   active: Boolean,
   name: String,
-  sensorsData: [Ids]
+  sensorsData: [String]
 }
 ```
 
@@ -96,7 +97,7 @@ Params: {
 ## Device ##
 
 ### POST /devices
-Creates a new user for an account.
+Creates a new device for an account.
 
 ```js
 Params: {
@@ -109,7 +110,7 @@ Params: {
 ## Sensor ##
 
 ### POST /devices/:device_id/sensors
-Creates a new user for an account.
+Creates a new sensor for a device.
 
 ```js
 Params: {
@@ -121,7 +122,7 @@ Params: {
 ## Sensor Data ##
 
 ### POST /devices/:device_id/sensors/:sensor_id/sensors_data
-Creates a new user for an account.
+Creates a new sensor data for a sensor.
 
 ```js
 Params: {

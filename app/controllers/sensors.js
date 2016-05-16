@@ -8,7 +8,7 @@ exports.create = (request, response) => {
     request.device.sensors.push(sensor);
     request.device.save((error) => {
       if (error) return response.send(error);
-      response.json({ message: 'Sensor creado satisfactoriamente' });
+      response.json(sensor);
     });
   });
 };
