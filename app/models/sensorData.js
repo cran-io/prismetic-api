@@ -4,11 +4,11 @@ var Sensor   = require('./sensor');
 
 var sensorDataSchema = new Schema({
   enter: {
-    type: Number,
+    type: String,
     default: 0
   },
   exit: {
-    type: Number,
+    type: String,
     default: 0
   },
   sentAt: {
