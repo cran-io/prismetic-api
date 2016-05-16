@@ -5,14 +5,11 @@ Dex Server
 
 # Mongoose Models #
 
-Note: all models have the following properties:
-* id
-* created_at
-* updated_at
-
 ## User ##
 ```js
 {
+  _id: String,
+  createdAt: Date,
   name: String,
   lastName: String,
   mail: String,
@@ -23,6 +20,8 @@ Note: all models have the following properties:
 ## Account ##
 ```js
 {
+  _id: String,
+  createdAt: Date,
   name: String,
   address: String,
   users: [ids],
@@ -33,6 +32,8 @@ Note: all models have the following properties:
 ## Devices ##
 ```js
 {
+  _id: String,
+  createdAt: Date,
   model: String,
   active: Boolean,
   sensors: [ids]
@@ -43,6 +44,8 @@ Note: all models have the following properties:
 
 ```js
 {
+  _id: String,
+  createdAt: Date,
   active: Boolean,
   name: String,
   sensorsData: [Ids]
@@ -53,6 +56,8 @@ Note: all models have the following properties:
 
 ```js
 {
+  _id: String,
+  createdAt: Date,
   state: String,
   sentAt: Date
 }
@@ -97,7 +102,7 @@ Creates a new user for an account.
 Params: {
   model: String,
   active: Boolean,
-  accountId: String (el ID del account padre)
+  accountId: String (el ID del account al que pertenece)
 }
 ```
 
@@ -115,7 +120,7 @@ Params: {
 
 ## Sensor Data ##
 
-### POST /devices/:device_id/sensors/sensor_id/sensors_data
+### POST /devices/:device_id/sensors/:sensor_id/sensors_data
 Creates a new user for an account.
 
 ```js
