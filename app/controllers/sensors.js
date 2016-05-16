@@ -2,12 +2,13 @@ var Device  = require('../models/device');
 var Sensor = require('../models/sensor');
 
 exports.create = (request, response) => {
+  console.log(request.body)
   var sensor = new Sensor(request.body);
   sensor.save((error, sensor) => {
     if (error) return response.send(500, error);
     request.device.sensors.push(sensor);
     request.device.save((error) => {
-      if (error) return response.send(error);
+      if (error) return response.send(500, error);
       response.json(sensor);
     });
   });

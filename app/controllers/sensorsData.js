@@ -4,7 +4,6 @@ var SensorData = require('../models/sensorData');
 var ObjectId = (require('mongoose').Types.ObjectId);
 
 exports.index = (request, response) => {
-  console.log(request.device)
   request.device.sensors = request.device.sensors || [];
   var sensorId = request.device.sensors.find((sensorId) => {
     return sensorId == request.params.sensor_id;
@@ -23,6 +22,7 @@ exports.index = (request, response) => {
 
 exports.create = (io) => {
   return (request, response) => {
+    console.log(request.body)
     var sensorId = request.params.sensor_id;
     request.body = Array.isArray(request.body) ? request.body : [request.body];
     var sensorsData = request.body.reduce((resp, data) => {
@@ -31,12 +31,14 @@ exports.create = (io) => {
       return resp;
     }, []);
     SensorData.create(sensorsData, (error, data) => {
-      if (error) return response.send(error);
+      if (error) return response.send(500, error);
       var sensorIds = data.map(sensorData => sensorData._id);
       Sensor.findById(sensorId, (error, sensor) => {
+        if(error) return response.send(500, error);
+        if(!sensor) return response.send(400, "No hay un sensor con ese ID");
         sensor.sensorData = sensor.sensorData.concat(sensorIds);
         sensor.save((error) => {
-          if (error) return response.send(error);
+          if (error) return response.send(500, error);
           response.json(sensorsData);
           sensorsData.forEach((sensorData) => {
             io.emit(sensorId, { data: [sensorData.value, sensorData.sentAt]});
