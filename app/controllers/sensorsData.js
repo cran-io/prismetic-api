@@ -25,7 +25,7 @@ exports.index = (request, response) => {
     let resp = []
     for(var i in structure) {
       structure[i].date = moment(Number(i)).add(30, "minutes")._d.toString()
-      structure[i].average = (structure[i].count / structure[i].cant) || 0
+      structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0
       resp.push(structure[i])
     }
     sensorData.length ? response.send(resp) : response.send([]);
