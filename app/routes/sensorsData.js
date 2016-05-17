@@ -3,8 +3,10 @@ var router                = express.Router();
 var sensorsDataController = require('../controllers/sensorsData');
 
 module.exports = (io) => {
+  router.all('/devices/:device_id/sensors/:sensor_id/*', sensorsDataController.sensorMiddleware);
+  
   // GET /devices/:device_id/sensors/:sensor_id
-  router.get('/devices/:device_id/sensors/:sensor_id', sensorsDataController.index);
+  router.get('/devices/:device_id/sensors/:sensor_id/sensors_data', sensorsDataController.index);
 
   // POST /devices/:device_id/sensors/:sensor_id/sensors_data
   router.post('/devices/:device_id/sensors/:sensor_id/sensors_data', sensorsDataController.create(io));

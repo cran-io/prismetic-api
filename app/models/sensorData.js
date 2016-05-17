@@ -11,6 +11,13 @@ var sensorDataSchema = new Schema({
     type: String,
     default: 0
   },
+  count: {
+    type: Number
+  },
+  read: {
+    type: Boolean,
+    default: false
+  },
   sentAt: {
     type: Date,
     default: Date.now
