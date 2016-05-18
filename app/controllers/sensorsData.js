@@ -36,7 +36,7 @@ exports.index = (request, response) => {
       structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0
       resp.push(structure[i])
     }
-    flagData ? response.send({data: resp, metadata: metadata}) : response.send([]);
+    flagData ? response.send({data: resp, metadata: metadata}) : response.send({data: [], metadata: metadata});
   });
   stream.on('error', (error) => {
     response.send(500, error);
@@ -96,11 +96,13 @@ var structureData = (from, to, interval) => {
 }
 
 var findKeyofStructure = (structure, sentAt) => {
-  sentAt = moment(sentAt).toDate().getTime()
-  for(let i in structure) {
+  sentAt = moment(sentAt).toDate().getTime();
+  let j;
+  for(var i in structure) {
     if(sentAt <= i) {
-      return i;
+      return j;
     }
+    j = i;
   }
   return i;
 }
