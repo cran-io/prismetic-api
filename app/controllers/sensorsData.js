@@ -7,28 +7,36 @@ var moment = require('moment');
 
 exports.index = (request, response) => {
   let interval = Number(request.query.interval) || 60;
+  request.query.dateFrom = new Date(request.query.dateFrom).toISOString();
+  request.query.dateTo = new Date(request.query.dateTo).toISOString();
   let query = {
     _id: {$in: request.sensor.sensorData},
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   }
-  let structure = structureData(request.query.dateFrom, request.query.dateTo);
+  let structure = structureData(request.query.dateFrom, request.query.dateTo, interval);
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
-  let sensorData = [];
+  let flagData = false;
   stream.on('data', data => {
-    sensorData.push(data);
+    flagData = true;
+    let key = findKeyofStructure(structure, data.sentAt);
     let timestamp = moment(data.sentAt).startOf('hour').toDate().getTime();
-    structure[timestamp].count += data.count;
-    structure[timestamp].sentAt = data.sentAt.toString();
-    structure[timestamp].cant++;
+    structure[key].count += data.count;
+    structure[key].sentAt = data.sentAt.toString();
+    structure[key].cant ++;
+    structure[key].enter += Number(data.enter)
+    structure[key].exit += Number(data.exit)
   });
   stream.on('end', () => {
     let resp = []
+    let metadata = {enter: 0, exit: 0}
     for(var i in structure) {
-      structure[i].date = moment(Number(i)).add(30, "minutes")._d.toString()
+      metadata.enter += structure[i].enter;
+      metadata.exit += structure[i].exit;
+      structure[i].date = moment(Number(i)).add(interval / 2, "minutes")._d.toString()
       structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0
       resp.push(structure[i])
     }
-    sensorData.length ? response.send(resp) : response.send([]);
+    flagData ? response.send({data: resp, metadata: metadata}) : response.send([]);
   });
   stream.on('error', (error) => {
     response.send(500, error);
@@ -70,7 +78,7 @@ exports.sensorMiddleware = (request, response, next) => {
   });
 };
 
-var structureData = (from, to) => {
+var structureData = (from, to, interval) => {
   let fromDate = moment(from).startOf('day').toDate().getTime();
   let iterator = fromDate;
   let toDate = moment(to) > moment() ? moment().startOf('hour').toDate().getTime() : moment(to).startOf('hour').toDate().getTime();
@@ -78,9 +86,21 @@ var structureData = (from, to) => {
   while(iterator <= toDate) {
     response[iterator] = {
       count: 0,
-      cant: 0
+      cant: 0,
+      enter: 0,
+      exit: 0
     }
-    iterator = moment(iterator).add(1, 'hour').toDate().getTime();
+    iterator = moment(iterator).add(interval, 'minutes').toDate().getTime();
   }
   return response;
+}
+
+var findKeyofStructure = (structure, sentAt) => {
+  sentAt = moment(sentAt).toDate().getTime()
+  for(let i in structure) {
+    if(sentAt <= i) {
+      return i;
+    }
+  }
+  return i;
 }
