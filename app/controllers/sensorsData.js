@@ -47,6 +47,7 @@ exports.index = (request, response) => {
 
 exports.create = (io) => {
   return (request, response) => {
+    if(request.body.sentAt) delete request.body.sentAt;
     var sensorData = new SensorData(request.body);
     if(sensorData.validateSync()) return response.send(400);
     //Find last sensorData count;
