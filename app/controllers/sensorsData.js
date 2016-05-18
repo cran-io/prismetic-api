@@ -13,10 +13,12 @@ exports.index = (request, response) => {
     _id: {$in: request.sensor.sensorData},
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   }
+  console.log(query);
   let structure = structureData(request.query.dateFrom, request.query.dateTo, interval);
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
   let flagData = false;
   stream.on('data', data => {
+    console.log(data);
     flagData = true;
     let key = findKeyofStructure(structure, data.sentAt);
     let timestamp = moment(data.sentAt).startOf('hour').toDate().getTime();
