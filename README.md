@@ -130,3 +130,9 @@ Params: {
   sentAt: Date
 }
 ```
+
+####Deploy:
+Just run:
+```
+$ pm2 deploy ecosystem.json production
+``` 
