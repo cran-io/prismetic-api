@@ -13,9 +13,6 @@ router.post('/devices/:device_id/sensors', sensorsController.create);
 // GET /api/:device_id/sensors
 router.get('/devices/:device_id/sensors', sensorsController.index);
 
-//GET /api/:device_id/sensors/:sensor_id/average
-router.get('/devices/:device_id/average', sensorsController.average);
-
 //GET /api/:device_id/sensors/:sensor_id/count
 // router.get('/devices/:device_id/count', sensorsController.count);
   return router;

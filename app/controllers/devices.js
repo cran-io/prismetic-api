@@ -24,14 +24,14 @@ var exports  = module.exports;
 exports.create = (request, response) => {
   var device = new Device(request.body);
   device.save((error, device) => {
-    if (error) return response.send(500, error);
+    if(error) return next(error);
     response.json(device);
   });
 };
 
 exports.index = (request, response) => {
   Device.find((error, devices) => {
-    if (error) return response.send(500, error);
+    if(error) return next(error);
     response.send(devices);
   });
 };

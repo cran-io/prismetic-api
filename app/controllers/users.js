@@ -1,15 +1,15 @@
+'use strict';
 var User = require('../models/user');
 var Account = require('../models/account');
 var bcrypt = require('bcrypt-nodejs');
 exports.create = (request, response) => {
   var user = new User(request.body);
   user.password = bcrypt.hashSync(request.body.password, bcrypt.genSaltSync(8), null);
-  console.log(user.password);
   user.save((error, user) => {
-    if (error) return response.send(500, error);
+    if (error) return next(error);
     request.account.users.push(user);
     request.account.save((error, account) => {
-      if (error) return response.send(500, error);
+      if (error) return next(error);
       response.send(user);
     })
   });
@@ -17,15 +17,20 @@ exports.create = (request, response) => {
 
 exports.index = (request, response) => {
   request.account.populate('users', (error, account) => {
-    if (error) return response.send(500, error);
+    if (error) return next(error);
     response.send(account.users);
   });
 };
 
 exports.account = (request, response, next) => {
   Account.findById(request.params.account_id, (error, account) => {
-    if(error) return response.send(500, {message: "Internal server error"});
-    if(!account) return response.send([]);
+    if(error) return next(error);
+    if(!account) {
+      let err = new Error();
+      err.message = "No se encontro account con ese id"; 
+      err.status = 404;
+      return next(err);
+    };
     request.account = account;
     next();
   });

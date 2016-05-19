@@ -53,18 +53,21 @@ exports.create = (io) => {
     request.body.enter = exit;
     request.body.exit = enter;
     var sensorData = new SensorData(request.body);
-    if(sensorData.validateSync()) return response.send(400);
+    if(sensorData.validateSync()) {
+      error.status = 400;
+      return next(error);
+    }
     //Find last sensorData count;
     SensorData.findOneAndUpdate({_id: {$in: request.sensor.sensorData}, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
-      if(error) return response.send(500, error);
+      if(error) return next(error);
       let sum = sensorData.enter - sensorData.exit;
       oldSensor = oldSensor || {count: 0};
       sensorData.count = (oldSensor.count + sum < 0 ) ? 0 : (oldSensor.count + sum);
       sensorData.save((error, data) => {
-        if (error) return response.send(500, error);
+        if (error) return next(error);
         request.sensor.sensorData.push(sensorData);
         request.sensor.save((error) => {
-          if (error) return response.send(500, error);
+          if (error) return next(error);
           response.send(sensorData);
           io.emit(request.sensor._id.toString(), sensorData);
         });
@@ -78,8 +81,13 @@ exports.sensorMiddleware = (request, response, next) => {
     return sensorId == request.params.sensor_id;
   });
   Sensor.findById(sensorId, (error, sensor) => {
-    if(error) return response.send(500, error);
-    if(!sensor) return response.send(404, []);
+    if(error) return next(error);
+    if(!sensor) {
+      let err = new Error();
+      err.message = "No se encontro el sensor con ese id"; 
+      err.status = 404;
+      return next(err);
+    }
     request.sensor = sensor;
     next();
   });
