@@ -10,6 +10,9 @@ var deviceSchema = new Schema({
     type: Boolean, 
     default: false
   },
+  mac: {
+    type: String
+  },
   sensors: [{
     type: Schema.Types.ObjectId,
     ref: 'Sensor'

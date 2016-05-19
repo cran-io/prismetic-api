@@ -1,0 +1,23 @@
+{
+  "apps" : [{
+    "name": "Primsetic API",
+    "script": "app.js",
+    "env": {
+      "COMMON_ENV_VAR": "true"
+      },
+      "env_production": {
+        "NODE_ENV": "production",
+        "MONGODB_URI": "mongodb://localhost/raspberry-api-dev"
+      }
+      }],
+      "deploy" : {
+        "production" : {
+          "user" : "root",
+          "host" : "45.55.222.131",
+          "repo" : "git@github.com:cran-io/prismetic-api.git",
+          "ref"  : "origin/master",
+          "path" : "/var/www/prismetic-api",
+          "post-deploy" : "npm install && pm2 startOrRestart ecosystem.json --env production"
+        }
+      }
+    }

@@ -13,10 +13,12 @@ exports.index = (request, response) => {
     _id: {$in: request.sensor.sensorData},
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   }
+  console.log(query);
   let structure = structureData(request.query.dateFrom, request.query.dateTo, interval);
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
   let flagData = false;
   stream.on('data', data => {
+    console.log(data);
     flagData = true;
     let key = findKeyofStructure(structure, data.sentAt);
     let timestamp = moment(data.sentAt).startOf('hour').toDate().getTime();
@@ -36,7 +38,7 @@ exports.index = (request, response) => {
       structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0
       resp.push(structure[i])
     }
-    flagData ? response.send({data: resp, metadata: metadata}) : response.send([]);
+    flagData ? response.send({data: resp, metadata: metadata}) : response.send({data: [], metadata: metadata});
   });
   stream.on('error', (error) => {
     response.send(500, error);
@@ -45,6 +47,11 @@ exports.index = (request, response) => {
 
 exports.create = (io) => {
   return (request, response) => {
+    if(request.body.sentAt) delete request.body.sentAt;
+    var enter = request.body.enter;
+    var exit = request.body.exit;
+    request.body.enter = exit;
+    request.body.exit = enter;
     var sensorData = new SensorData(request.body);
     if(sensorData.validateSync()) return response.send(400);
     //Find last sensorData count;
@@ -96,11 +103,13 @@ var structureData = (from, to, interval) => {
 }
 
 var findKeyofStructure = (structure, sentAt) => {
-  sentAt = moment(sentAt).toDate().getTime()
-  for(let i in structure) {
+  sentAt = moment(sentAt).toDate().getTime();
+  let j;
+  for(var i in structure) {
     if(sentAt <= i) {
-      return i;
+      return j;
     }
+    j = i;
   }
   return i;
 }
