@@ -101,7 +101,7 @@ var structureData = (from, to, interval, mock) => {
   let toDate = moment(to) > moment() ? moment().startOf('hour').toDate().getTime() : moment(to).startOf('hour').toDate().getTime();
   let response = {};
   while(iterator <= toDate) {
-    response[iterator] = 
+    response[iterator] = mock;
     iterator = moment(iterator).add(interval, 'minutes').toDate().getTime();
   }
   return response;
