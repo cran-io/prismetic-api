@@ -2,7 +2,7 @@
 
 var Account = require('../models/account');
 
-exports.create = (request, response) => {
+exports.create = (request, response, next) => {
   var account = new Account(request.body);
   account.save((error, account) => {
     if (error) return next(error);
@@ -10,7 +10,7 @@ exports.create = (request, response) => {
   });
 };
 
-exports.index = (request, response) => {
+exports.index = (request, response, next) => {
   Account.find({}, (error, account) => {
     if(error) return next(error);
     response.send(account);

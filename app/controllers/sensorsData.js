@@ -5,7 +5,7 @@ var SensorData = require('../models/sensorData');
 var ObjectId = (require('mongoose').Types.ObjectId);
 var moment = require('moment');
 
-exports.index = (request, response) => {
+exports.average = (request, response, next) => {
   let interval = Number(request.query.interval) || 60;
   request.query.dateFrom = new Date(request.query.dateFrom).toISOString();
   request.query.dateTo = new Date(request.query.dateTo).toISOString();
@@ -13,12 +13,10 @@ exports.index = (request, response) => {
     _id: {$in: request.sensor.sensorData},
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   }
-  console.log(query);
-  let structure = structureData(request.query.dateFrom, request.query.dateTo, interval);
+  let structure = structureData(request.query.dateFrom, request.query.dateTo, interval, {count: 0, cant: 0, enter: 0, exit: 0});
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
   let flagData = false;
   stream.on('data', data => {
-    console.log(data);
     flagData = true;
     let key = findKeyofStructure(structure, data.sentAt);
     let timestamp = moment(data.sentAt).startOf('hour').toDate().getTime();
@@ -34,8 +32,8 @@ exports.index = (request, response) => {
     for(var i in structure) {
       metadata.enter += structure[i].enter;
       metadata.exit += structure[i].exit;
-      structure[i].date = moment(Number(i)).add(interval / 2, "minutes")._d.toString()
-      structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0
+      structure[i].date = moment(Number(i)).add(interval / 2, "minutes")._d.toString();
+      structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0;
       resp.push(structure[i])
     }
     flagData ? response.send({data: resp, metadata: metadata}) : response.send({data: [], metadata: metadata});
@@ -46,7 +44,7 @@ exports.index = (request, response) => {
 };
 
 exports.create = (io) => {
-  return (request, response) => {
+  return (request, response, next) => {
     if(request.body.sentAt) delete request.body.sentAt;
     var enter = request.body.enter;
     var exit = request.body.exit;
@@ -93,18 +91,17 @@ exports.sensorMiddleware = (request, response, next) => {
   });
 };
 
-var structureData = (from, to, interval) => {
+exports.count = (request, response, next) => {
+
+}
+
+var structureData = (from, to, interval, mock) => {
   let fromDate = moment(from).startOf('day').toDate().getTime();
   let iterator = fromDate;
   let toDate = moment(to) > moment() ? moment().startOf('hour').toDate().getTime() : moment(to).startOf('hour').toDate().getTime();
   let response = {};
   while(iterator <= toDate) {
-    response[iterator] = {
-      count: 0,
-      cant: 0,
-      enter: 0,
-      exit: 0
-    }
+    response[iterator] = 
     iterator = moment(iterator).add(interval, 'minutes').toDate().getTime();
   }
   return response;

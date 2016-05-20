@@ -1,7 +1,5 @@
 var Device   = require('../models/device');
 var Account   = require('../models/account');
-var exports  = module.exports;
-
 // exports.create = (request, response) => {
 //   if(!request.body.accountId) return response.send(400);
 //   Account.findById(request.body.accountId, (error, account) => {
@@ -21,7 +19,7 @@ var exports  = module.exports;
 //   });
 // };
 
-exports.create = (request, response) => {
+exports.create = (request, response, next) => {
   var device = new Device(request.body);
   device.save((error, device) => {
     if(error) return next(error);
@@ -29,7 +27,7 @@ exports.create = (request, response) => {
   });
 };
 
-exports.index = (request, response) => {
+exports.index = (request, response, next) => {
   Device.find((error, devices) => {
     if(error) return next(error);
     response.send(devices);

@@ -2,7 +2,7 @@
 var User = require('../models/user');
 var Account = require('../models/account');
 var bcrypt = require('bcrypt-nodejs');
-exports.create = (request, response) => {
+exports.create = (request, response, next) => {
   var user = new User(request.body);
   user.password = bcrypt.hashSync(request.body.password, bcrypt.genSaltSync(8), null);
   user.save((error, user) => {
@@ -15,7 +15,7 @@ exports.create = (request, response) => {
   });
 };
 
-exports.index = (request, response) => {
+exports.index = (request, response, next) => {
   request.account.populate('users', (error, account) => {
     if (error) return next(error);
     response.send(account.users);
