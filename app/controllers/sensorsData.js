@@ -95,13 +95,13 @@ exports.count = (request, response, next) => {
 
 }
 
-var structureData = (from, to, interval, mock) => {
+var structureData = (from, to, interval, objectStructure) => {
   let fromDate = moment(from).startOf('day').toDate().getTime();
   let iterator = fromDate;
   let toDate = moment(to) > moment() ? moment().startOf('hour').toDate().getTime() : moment(to).startOf('hour').toDate().getTime();
   let response = {};
   while(iterator <= toDate) {
-    response[iterator] = mock;
+    response[iterator] = Object.assign({}, objectStructure);
     iterator = moment(iterator).add(interval, 'minutes').toDate().getTime();
   }
   return response;
