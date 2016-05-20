@@ -47,3 +47,21 @@ io.on('connection', function(socket) {
   });
 });
 
+if (process.env.NODE_ENV === 'production') {
+  // production error handler
+  // no stacktraces leaked to user
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.send({
+      message: err.message
+    });
+  });
+}
+
+app.use(function(err, req, res, next) {
+  res.status(err.status || 500);
+  console.log(err)
+  res.send({
+    error: err
+  });
+});
