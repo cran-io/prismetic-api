@@ -92,7 +92,6 @@ exports.sensorMiddleware = (request, response, next) => {
 };
 
 exports.count = (request, response, next) => {
-  let interval = Number(request.query.interval) || 60;
   request.query.dateFrom = new Date(request.query.dateFrom).toISOString();
   request.query.dateTo = new Date(request.query.dateTo).toISOString();
   let query = {
