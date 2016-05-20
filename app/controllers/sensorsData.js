@@ -92,7 +92,17 @@ exports.sensorMiddleware = (request, response, next) => {
 };
 
 exports.count = (request, response, next) => {
-
+  let interval = Number(request.query.interval) || 60;
+  request.query.dateFrom = new Date(request.query.dateFrom).toISOString();
+  request.query.dateTo = new Date(request.query.dateTo).toISOString();
+  let query = {
+    _id: {$in: request.sensor.sensorData},
+    sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
+  }
+  SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().exec((error, sensorData) => {
+    if(error) return next(error);
+    response.send(sensorData);
+  });
 }
 
 var structureData = (from, to, interval, objectStructure) => {
