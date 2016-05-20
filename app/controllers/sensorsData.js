@@ -10,21 +10,18 @@ exports.average = (request, response, next) => {
   request.query.dateFrom = new Date(request.query.dateFrom).toISOString();
   request.query.dateTo = new Date(request.query.dateTo).toISOString();
   let query = {
-    _id: {$in: request.sensor.sensorData},
+    sensorId: request.params.sensor_id,
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
-  }
+  };
   let structure = structureData(request.query.dateFrom, request.query.dateTo, interval, {count: 0, cant: 0, enter: 0, exit: 0});
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
-  let flagData = false;
   stream.on('data', data => {
-    flagData = true;
     let key = findKeyofStructure(structure, data.sentAt);
-    let timestamp = moment(data.sentAt).startOf('hour').toDate().getTime();
     structure[key].count += data.count;
     structure[key].sentAt = data.sentAt.toString();
     structure[key].cant ++;
-    structure[key].enter += Number(data.enter)
-    structure[key].exit += Number(data.exit)
+    structure[key].enter += Number(data.enter);
+    structure[key].exit += Number(data.exit);
   });
   stream.on('end', () => {
     let resp = []
@@ -34,9 +31,9 @@ exports.average = (request, response, next) => {
       metadata.exit += structure[i].exit;
       structure[i].date = moment(Number(i)).add(interval / 2, "minutes")._d.toString();
       structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || 0;
-      resp.push(structure[i])
+      resp.push(structure[i]);
     }
-    flagData ? response.send({data: resp, metadata: metadata}) : response.send({data: [], metadata: metadata});
+    response.send({data: resp, metadata: metadata});
   });
   stream.on('error', (error) => {
     response.send(500, error);
@@ -51,24 +48,21 @@ exports.create = (io) => {
     request.body.enter = exit;
     request.body.exit = enter;
     var sensorData = new SensorData(request.body);
+    sensorData.sensorId = request.params.sensor_id;
     if(sensorData.validateSync()) {
       error.status = 400;
       return next(error);
     }
     //Find last sensorData count;
-    SensorData.findOneAndUpdate({_id: {$in: request.sensor.sensorData}, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
+    SensorData.findOneAndUpdate({sensorId: request.params.sensor_id, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
       if(error) return next(error);
       let sum = sensorData.enter - sensorData.exit;
       oldSensor = oldSensor || {count: 0};
       sensorData.count = (oldSensor.count + sum < 0 ) ? 0 : (oldSensor.count + sum);
       sensorData.save((error, data) => {
         if (error) return next(error);
-        request.sensor.sensorData.push(sensorData);
-        request.sensor.save((error) => {
-          if (error) return next(error);
-          response.send(sensorData);
-          io.emit(request.sensor._id.toString(), sensorData);
-        });
+        response.send(sensorData);
+        io.emit(request.sensor._id.toString(), sensorData);
       });
     });
   }
@@ -95,7 +89,7 @@ exports.count = (request, response, next) => {
   request.query.dateFrom = new Date(request.query.dateFrom).toISOString();
   request.query.dateTo = new Date(request.query.dateTo).toISOString();
   let query = {
-    _id: {$in: request.sensor.sensorData},
+    sensorId: request.params.sensor_id,
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   }
   SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().exec((error, sensorData) => {
