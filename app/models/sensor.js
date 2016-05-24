@@ -13,6 +13,14 @@ var sensorSchema = new Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  flow: {
+    type: Boolean,
+    default: true
+  },
+  switch: {
+    type: Boolean,
+    default: false
   }
 });
 

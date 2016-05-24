@@ -1,3 +1,5 @@
+'use strict';
+
 var mongoose = require('mongoose');
 var Schema   = mongoose.Schema;
 var Sensor   = require('./sensor');
@@ -31,5 +33,12 @@ var sensorDataSchema = new Schema({
     ref: 'Sensor'
   }
 });
+
+sensorDataSchema.methods.switchData = () => {
+  let enter = this.enter;
+  this.enter = this.exit;
+  this.exit = enter;
+  return this;
+}
 
 module.exports = mongoose.model('SensorData', sensorDataSchema);
