@@ -4,7 +4,7 @@ var devicesController = require('../controllers/devices');
 
 module.exports = () => {
   // POST /api/devices
-  router.post('/devices', devicesController.create);
+  router.post('/devices', devicesController.findAccount, devicesController.findDeviceMac, devicesController.create);
 
   // GET /api/devices
   router.get('/devices', devicesController.index);
