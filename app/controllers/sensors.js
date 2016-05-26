@@ -55,7 +55,7 @@ exports.graphSensorData = (request, response, next) => {
       metadata.enter += structure[i].enter;
       metadata.exit += structure[i].exit;
       structure[i].date = moment(Number(i)).add(interval / 2, "minutes")._d.toString();
-      structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || structure[previous].average;
+      structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || (previous ? structure[previous].average : 0);
       average.push(structure[i]);
       let previous = i;
     }
