@@ -2,6 +2,7 @@
 var Device  = require('../models/device');
 var Sensor = require('../models/sensor');
 var SensorData = require('../models/sensorData');
+var moment = require('moment');
 
 //Create sensor with device.
 exports.create = (request, response, next) => {
