@@ -2,7 +2,45 @@
 var Device   = require('../models/device');
 var Account   = require('../models/account');
 
-//Middlewares for create.
+exports.create = (request, response, next) => {
+  var device = new Device();
+  device.model = request.body.model;
+  device.active = request.body.active;
+  device.mac = request.body.mac;
+  device.save((error, device) => {
+    if (error) return next(error);
+    request.account.devices.push(device);
+    request.account.save((error, account) => {
+      if(error) return next(error);
+      response.json(device);
+    });
+  });
+};
+
+exports.index = (request, response, next) => {
+  Device.find((error, devices) => {
+    if(error) return next(error);
+    response.send(devices);
+  });
+};
+
+//===== MIDDLEWARES =====
+
+//Get device and save it on request
+exports.deviceMiddleware = (request, response, next) => {
+  Device.findById(request.params.device_id, (error, device) => {
+    if(error) return next(error);
+    if(!device) {
+      let err = new Error();
+      err.message = "No se encontro el device con ese id"; 
+      err.status = 404;
+      return next(err);
+    }
+    request.device = device;
+    next();
+  });
+};
+
 //Find device by mac before create, if exists return the old one.
 exports.findDeviceMac = (request, response, next) => {
   Device.findOne({mac: request.body.mac}, (error, device) => {
@@ -36,27 +74,3 @@ exports.findAccount = (request, response, next) => {
     next();
   });  
 }
-
-//Api methods.
-exports.create = (request, response, next) => {
-  var device = new Device();
-  device.model = request.body.model;
-  device.active = request.body.active;
-  device.mac = request.body.mac;
-  device.save((error, device) => {
-    if (error) return next(error);
-    request.account.devices.push(device);
-    request.account.save((error, account) => {
-      if(error) return next(error);
-      response.json(device);
-    });
-  });
-};
-
-exports.index = (request, response, next) => {
-  Device.find((error, devices) => {
-    if(error) return next(error);
-    response.send(devices);
-  });
-};
-

@@ -4,6 +4,14 @@ var Sensor = require('../models/sensor');
 var SensorData = require('../models/sensorData');
 var moment = require('moment');
 
+//Show sensors for a device.
+exports.index = (request, response, next) => {
+  request.device.populate('sensors', (error, device) => {
+    if (error) return next(error);
+    response.send(device.sensors);
+  });
+};
+
 //Create sensor with device.
 exports.create = (request, response, next) => {
   var sensor = new Sensor(request.body);
@@ -17,13 +25,9 @@ exports.create = (request, response, next) => {
   });
 };
 
-//Show sensors for a device.
-exports.index = (request, response, next) => {
-  request.device.populate('sensors', (error, device) => {
-    if (error) return next(error);
-    response.send(device.sensors);
-  });
-};
+exports.update = (request, response, next) => {
+
+}
 
 //Graphs of sensor data.
 exports.graphSensorData = (request, response, next) => {
@@ -63,19 +67,22 @@ exports.graphSensorData = (request, response, next) => {
 };
 
 
-//MIDDLEWARES
+//===== MIDDLEWARES ===== 
 
-//Get device and save it on request
-exports.device = (request, response, next) => {
-  Device.findById(request.params.device_id, (error, device) => {
+//Get sensor and save it on request.
+exports.sensorMiddleware = (request, response, next) => {
+  var sensorId = request.device.sensors.find((sensorId) => {
+    return sensorId == request.params.sensor_id;
+  });
+  Sensor.findById(sensorId, (error, sensor) => {
     if(error) return next(error);
-    if(!device) {
+    if(!sensor) {
       let err = new Error();
-      err.message = "No se encontro el device con ese id"; 
+      err.message = "No se encontro el sensor con ese id"; 
       err.status = 404;
       return next(err);
     }
-    request.device = device;
+    request.sensor = sensor;
     next();
   });
 };
@@ -89,7 +96,8 @@ exports.findSensorMac = (request, response, next) => {
   });
 };
 
-//Private functions.
+//===== Private functions =====.
+
 var _structureData = (from, to, interval, objectStructure) => {
   let fromDate = moment(from).startOf('day').toDate().getTime();
   let iterator = fromDate;

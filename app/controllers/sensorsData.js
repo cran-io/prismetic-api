@@ -37,21 +37,3 @@ exports.delete = (request, response, next) => {
     response.send(200);
   });
 }
-
-//Get sensor and save it on request.
-exports.sensorMiddleware = (request, response, next) => {
-  var sensorId = request.device.sensors.find((sensorId) => {
-    return sensorId == request.params.sensor_id;
-  });
-  Sensor.findById(sensorId, (error, sensor) => {
-    if(error) return next(error);
-    if(!sensor) {
-      let err = new Error();
-      err.message = "No se encontro el sensor con ese id"; 
-      err.status = 404;
-      return next(err);
-    }
-    request.sensor = sensor;
-    next();
-  });
-};
