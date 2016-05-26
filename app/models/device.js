@@ -11,7 +11,9 @@ var deviceSchema = new Schema({
     default: false
   },
   mac: {
-    type: String
+    type: String,
+    unique: true,
+    dropDups: true
   },
   sensors: [{
     type: Schema.Types.ObjectId,
