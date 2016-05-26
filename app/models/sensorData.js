@@ -35,7 +35,6 @@ var sensorDataSchema = new Schema({
 });
 
 sensorDataSchema.methods.switchData = function() {
-  console.log(this);
   let enter = this.enter;
   this.enter = this.exit;
   this.exit = enter;
