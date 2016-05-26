@@ -26,7 +26,14 @@ exports.create = (request, response, next) => {
 };
 
 exports.update = (request, response, next) => {
-
+  let fields = new Set(["name", "switch", "flow"]);
+  for(let key in request.body) {
+    if(fields.has(key)) request.sensor[key] = request.body[key];
+  }
+  request.sensor.save((error, sensor) => {
+    if(error) return next(error);
+    response.json(sensor);
+  });
 }
 
 //Graphs of sensor data.

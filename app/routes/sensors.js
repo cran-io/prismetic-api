@@ -12,6 +12,9 @@ module.exports = () => {
   // GET /api/:device_id/sensors
   router.get('/devices/:device_id/sensors', sensorsController.index);
 
+  // PUT /api/:device_id/sensors/:sensor_id
+  router.get('/devices/:device_id/sensors/:sensor_id', sensorsController.update);
+
   // GET /api/:device_id/graphSensorData
   router.get('/devices/:device_id/graphSensorData', sensorsController.graphSensorData);
   
