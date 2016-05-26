@@ -51,13 +51,14 @@ exports.graphSensorData = (request, response, next) => {
   });
   //Process data.
   stream.on('end', () => {
+    let previous;
     for(var i in structure) {
       metadata.enter += structure[i].enter;
       metadata.exit += structure[i].exit;
       structure[i].date = moment(Number(i)).add(interval / 2, "minutes")._d.toString();
       structure[i].average = Number((structure[i].count / structure[i].cant).toFixed(1)) || (previous ? structure[previous].average : 0);
       average.push(structure[i]);
-      let previous = i;
+      previous = i;
     }
     response.send({data: {average, count}, metadata: metadata});
   });
