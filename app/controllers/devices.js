@@ -1,3 +1,4 @@
+'use strict';
 var Device   = require('../models/device');
 var Account   = require('../models/account');
 
