@@ -2,32 +2,29 @@ var Device   = require('../models/device');
 var Account   = require('../models/account');
 
 
-exports.create = (request, response) => {
+exports.create = (request, response, next) => {
   if(!request.body.account) return response.send(400);
   Account.findById(request.body.account, (error, account) => {
-    if(error) return res.send(500);
-    if(!account) return res.send(400, {message: "No se encontro un Account con ese id"});
+    if(error) return next(error);
+    if(!account) {
+      let err;
+      err.status = 400;
+      err.message = "No se encontro un Account con ese id";
+      return next(err)
+    } 
     var device = new Device();
     device.model = request.body.model;
     device.active = request.body.active;
     device.save((error, device) => {
-      if (error) return response.send(500, error);
+      if (error) return next(error);
       account.devices.push(device);
       account.save((error, account) => {
-        if(error) return res.send(500);
+        if(error) return next(error);
         response.json(device);
       });
     });
   });
 };
-
-// exports.create = (request, response, next) => {
-//   var device = new Device(request.body);
-//   device.save((error, device) => {
-//     if(error) return next(error);
-//     response.json(device);
-//   });
-// };
 
 exports.index = (request, response, next) => {
   Device.find((error, devices) => {
