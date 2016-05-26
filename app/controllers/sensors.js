@@ -67,6 +67,8 @@ exports.graphSensorData = (request, response, next) => {
 };
 
 
+//MIDDLEWARES
+
 //Get device and save it on request
 exports.device = (request, response, next) => {
   Device.findById(request.params.device_id, (error, device) => {
