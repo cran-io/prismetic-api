@@ -6,6 +6,11 @@ var sensorSchema = new Schema({
   name: {
     type: String
   },
+  mac: {
+    type: String,
+    unique: true,
+    dropDups: true
+  },
   createdAt: {
     type: Date,
     default: Date.now

@@ -82,6 +82,14 @@ exports.device = (request, response, next) => {
   });
 };
 
+//Find sensor by mac before create, if exists return the old one.
+exports.findSensorMac = (request, response, next) => {
+  Sensor.findOne({mac: request.body.mac}, (error, sensor) => {
+    if(error) return next(new Error());
+    if(!sensor) return next();
+    return response.send(sensor);
+  });
+};
 
 //Private functions.
 var _structureData = (from, to, interval, objectStructure) => {

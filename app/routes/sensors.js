@@ -7,7 +7,7 @@ module.exports = () => {
   router.all('/devices/:device_id/*', sensorsController.device);
 
   // POST /devices/:device_id/sensors
-  router.post('/devices/:device_id/sensors', sensorsController.create);
+  router.post('/devices/:device_id/sensors', sensorsController.findSensorMac, sensorsController.create);
 
   // GET /api/:device_id/sensors
   router.get('/devices/:device_id/sensors', sensorsController.index);
