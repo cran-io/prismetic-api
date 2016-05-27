@@ -20,8 +20,8 @@ exports.create = (io) => {
     SensorData.findOneAndUpdate({sensorId: request.params.sensor_id, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
       if(error) return next(error);
       let sum = sensorData.enter - sensorData.exit;
-      oldSensor = oldSensor || {count: 0};
-      sensorData.count = (oldSensor.count + sum < 0 ) ? 0 : (oldSensor.count + sum);
+      let count = _resetCount(request.device.resetTime, oldSensor) ? 0 : oldSensor.count; 
+      sensorData.count = (count + sum < 0 ) ? 0 : (count + sum);
       sensorData.save((error, data) => {
         if (error) return next(error);
         response.send(sensorData);
@@ -36,4 +36,11 @@ exports.delete = (request, response, next) => {
     if(error) return next(error);
     response.send(200);
   });
+}
+
+var _resetCount = (resetTime, oldSensor) => {
+  if(!oldSensor) return true;
+  let momentResetTime = moment().hour(resetTime).startOf('hour');
+  let momentOldSensor = moment(oldSensor.sentAt);
+  return momentResetTime > momentOldSensor;
 }

@@ -26,8 +26,11 @@ var deviceSchema = new Schema({
   updatedAt: {
     type: Date, 
     default: Date.now
+  },
+  resetTime: {
+    type: String,
+    default: "05"
   }
 });
 
 module.exports = mongoose.model('Device', deviceSchema);
-
