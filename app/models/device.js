@@ -6,6 +6,10 @@ var deviceSchema = new Schema({
     type: String,
     required: true
   }, 
+  address: {
+    type: String,
+    required: false
+  },
   active: {
     type: Boolean, 
     default: false

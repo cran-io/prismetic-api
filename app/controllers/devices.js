@@ -25,7 +25,6 @@ exports.index = (request, response, next) => {
 };
 
 exports.update = (request, response, next) => {
-  delete request.body._id
   let fields = new Set(["model", "address"]);
   for(let key in request.body) {
     if(fields.has(key)) request.device[key] = request.body[key];
