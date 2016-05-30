@@ -13,5 +13,8 @@ module.exports = () => {
   // GET /api/devices
   router.get('/devices', devicesController.index);
 
+  // GET /api/:device_id/graphSensorData
+  router.get('/devices/:device_id/graphSensorData', devicesController.graphSensorData);
+  
   return router;
 }
