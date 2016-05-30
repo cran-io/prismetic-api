@@ -24,6 +24,18 @@ exports.index = (request, response, next) => {
   });
 };
 
+exports.update = (request, response, next) => {
+  delete request.body._id
+  let fields = new Set(["model", "address"]);
+  for(let key in request.body) {
+    if(fields.has(key)) request.device[key] = request.body[key];
+  }
+  request.device.save((error, device) => {
+    if(error) return next(error);
+    response.json(device);
+  });
+}
+
 //===== MIDDLEWARES =====
 
 //Get device and save it on request
