@@ -4,6 +4,8 @@ var Account   = require('../models/account');
 var SensorData = require('../models/sensorData');
 var moment = require ('moment');
 
+
+//API Requests.
 exports.create = (request, response, next) => {
   var device = new Device();
   device.model = request.body.model;
@@ -62,7 +64,7 @@ exports.graphSensorData = (request, response, next) => {
   });
   //Process data.
   stream.on('end', () => {
-    // count = _processCount(count);
+    count = _processCount(count);
     let data = _processAverage(structure, interval);
     let average = data.average;
     let metadata = data.metadata;
@@ -150,6 +152,24 @@ var _findKeyofStructure = (structure, sentAt) => {
   }
   return i;
 }
+
+//Add allways de sensorData previous and put the new sentAt date for graph.
+var _processCount = (countStructure) => {
+  var first = true;
+  let previousData;
+  return countStructure.reduce((newStructure, sensorData) => {
+    if(!first) {
+      previousData.sentAt = moment(sensorData.sentAt).subtract(1, 'second')._d;
+      newStructure.push(previousData);
+    }
+    first = false;
+    previousData = Object.assign({}, sensorData);
+    newStructure.push(sensorData);
+    console.log("newStructure: ",newStructure)
+    return newStructure;
+  }, []);
+}
+
 
 // var _processCount = (countStructure) => {
 //   let first = true;
