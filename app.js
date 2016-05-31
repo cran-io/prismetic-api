@@ -7,6 +7,7 @@ var mongoose   = require('mongoose');
 var io         = require('socket.io')(server);
 var expressSession = require('express-session');
 var morgan = require('morgan');
+var CronJob = require('cron').CronJob;
 
 mongoose.connect('mongodb://localhost/raspberry-api-dev');
 mongoose.set('debug', true);
@@ -24,13 +25,14 @@ mongoose.connection.on('disconnected', function () {
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(morgan('dev'))
 
 //Passport Session
 var passport = require('./app/config/passport')
 app.use(expressSession({secret: 'myPrismaticApiKey', resave: true, saveUninitialized: true}));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(morgan('dev'))
+
 
 //Defining Routes.
 var routes = require('./app/routes/routes')(io, passport);
@@ -66,3 +68,12 @@ app.use(function(err, req, res, next) {
     error: err
   });
 });
+
+var job = new CronJob('00 00 1 * * *', () => {
+  require('./app/services/cron').run();
+}, () => {
+  console.log("[CronJob] Stops");
+});
+
+// require('./app/services/cron').run();
+job.start();
