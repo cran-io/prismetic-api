@@ -25,4 +25,3 @@ var accountSchema = new Schema({
 });
 
 module.exports = mongoose.model('Account', accountSchema);
-

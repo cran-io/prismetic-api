@@ -16,5 +16,8 @@ module.exports = () => {
   // PUT /api/devices
   router.put('/devices/:device_id/', devicesController.update);
 
+  // GET /api/:device_id/graphSensorData
+  router.get('/devices/:device_id/graphSensorData', devicesController.graphSensorData);
+  
   return router;
 }
