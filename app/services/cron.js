@@ -14,8 +14,8 @@ exports.run = () => {
 }
 
 var _sensorMetric = (sensor) => {
-  let date = moment().subtract(1, 'days');
-  // let date = moment("2016-05-27");
+  // let date = moment().subtract(1, 'days');
+  let date = moment();
   let start = date.startOf('day').toISOString();
   let end = date.endOf('day').toISOString();
   SensorData.find({sensorId: ObjectId(sensor._id), sentAt: {$gte: start, $lte: end}}, {}, {sort: {sentAt: 1}}, (error, sensorDatas) => {
@@ -43,7 +43,7 @@ var _processSensorData = (sensorDatas, sensorId) => {
       return struct;
     }, structure);
     console.log("Struct post reduce: ", struct);
-    let average = ((now.count * new Date(now.sentAt)) + struct.exits - struct.enters) / struct.pEnters;
+    let average = ((now.count * new Date().getTime()) + struct.exits - struct.enters) / struct.pEnters;
     return {average, sensorId};
   } else {
     return {average: 0, sensorId};
