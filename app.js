@@ -69,11 +69,11 @@ app.use(function(err, req, res, next) {
   });
 });
 
-// var job = new CronJob('00 00 1 * * *', () => {
-//   require('./app/services/cron').run();
-// }, () => {
-//   console.log("[CronJob] Stops");
-// });
+var job = new CronJob('00 00 1 * * *', () => {
+  require('./app/services/cron').run();
+}, () => {
+  console.log("[CronJob] Stops");
+});
 
-require('./app/services/cron').run();
-// job.start();
+// require('./app/services/cron').run();
+job.start();

@@ -2,6 +2,7 @@
 var Device      = require('../models/device');
 var Sensor     = require('../models/sensor');
 var SensorData = require('../models/sensorData');
+var SensorDataFail = require('../models/SensorDataFail');
 var ObjectId = (require('mongoose').Types.ObjectId);
 var moment = require('moment');
 
@@ -20,13 +21,25 @@ exports.create = (io) => {
     SensorData.findOneAndUpdate({sensorId: request.params.sensor_id, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
       if(error) return next(error);
       let sum = sensorData.enter - sensorData.exit;
-      let count = _resetCount(request.device.resetTime, oldSensor) ? 0 : oldSensor.count; 
-      sensorData.count = (count + sum < 0 ) ? 0 : (count + sum);
-      sensorData.save((error, data) => {
-        if (error) return next(error);
-        response.send(sensorData);
-        io.emit(request.sensor._id.toString(), sensorData);
-      });
+      let count = _resetCount(request.device.resetTime, oldSensor) ? 0 : oldSensor.count;
+      //Save sensor data fail if count < 0
+      if(count + sum < 0) {
+        let sensorDataFail = new SensorDataFail(request.body);
+        if(request.sensor.switch) sensorDataFail = sensorDataFail.switchData();
+        sensorDataFail.sensorId = request.params.sensor_id;
+        sensorDataFail.count = count + sum;
+        sensorDataFail.save((error, data) => {
+          if(error) return next(error);
+          response.send(sensorDataFail);
+        });
+      } else {
+        sensorData.count = (count + sum);
+        sensorData.save((error, data) => {
+          if (error) return next(error);
+          response.send(sensorData);
+          io.emit(request.sensor._id.toString(), sensorData);
+        });
+      }
     });
   }
 }

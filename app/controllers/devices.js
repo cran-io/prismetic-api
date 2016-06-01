@@ -159,7 +159,7 @@ var _processCount = (countStructure) => {
   let previousData;
   return countStructure.reduce((newStructure, sensorData) => {
     if(!first) {
-      previousData.sentAt = moment(sensorData.sentAt).subtract(1, 'second')._d;
+      previousData.sentAt = moment(sensorData.sentAt).subtract(1, 'ms')._d;
       newStructure.push(previousData);
     }
     first = false;
