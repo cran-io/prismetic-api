@@ -36,16 +36,14 @@ var _processSensorData = (sensorDatas, sensorId) => {
     let structure = {exits: 0, enters: 0, pEnters: 0};
     let now = sensorDatas[sensorDatas.length - 1];
     let struct = sensorDatas.reduce((struct, sensorData) => {
-      struct.exits += sensorData.exit * new Date(sensorData.sentAt).getTime();
-      struct.enters += sensorData.enter * new Date(sensorData.sentAt).getTime();
+      struct.exits += (Number(sensorData.exit) * new Date(sensorData.sentAt).getTime());
+      struct.enters += (Number(sensorData.enter) * new Date(sensorData.sentAt).getTime());
       struct.pEnters += Number(sensorData.enter);
       return struct;
     }, structure);
     console.log("Struct post reduce: ", struct);
     console.log("Ultimo dato: ", now);
-    console.log("Date now: ", new Date(moment().hour(1)._d).getTime())
-    console.log("Date test: ", new Date(now.sentAt).getTime())
-    let average = ((now.count * new Date(moment().hour(1)._d).getTime()) + struct.exits - struct.enters) / struct.pEnters;
+    let average = ((now.count * new Date(moment().hour(1).minutes(0)._d).getTime()) + struct.exits - struct.enters) / struct.pEnters;
     return {average, sensorId};
   } else {
     return {average: 0, sensorId};
