@@ -2,7 +2,7 @@
 var Device      = require('../models/device');
 var Sensor     = require('../models/sensor');
 var SensorData = require('../models/sensorData');
-var SensorDataFail = require('../models/SensorDataFail');
+var SensorDataFail = require('../models/sensorDataFail');
 var ObjectId = (require('mongoose').Types.ObjectId);
 var moment = require('moment');
 
