@@ -9,7 +9,7 @@ var moment = require('moment');
 //Create sensor_data.
 exports.create = (io) => {
   return (request, response, next) => {
-    if(request.body.sentAt) delete request.body.sentAt;
+    if(request.body.sentAt) request.body.sentAt = moment(request.body.sentAt).subtract(3, 'hours');
     var sensorData = new SensorData(request.body);
     if(request.sensor.switch) sensorData = sensorData.switchData();
     sensorData.sensorId = request.params.sensor_id;
@@ -37,6 +37,7 @@ exports.create = (io) => {
         sensorData.save((error, data) => {
           if (error) return next(error);
           response.send(sensorData);
+          console.log("EMIT", request.sensor._id)
           io.emit(request.sensor._id.toString(), sensorData);
         });
       }
