@@ -9,9 +9,7 @@ var moment = require('moment-timezone');
 //Create sensor_data.
 exports.create = (io) => {
   return (request, response, next) => {
-    console.log("SENTAT: ", request.body.sentAt);
     if(request.body.sentAt) request.body.sentAt = moment(request.body.sentAt).tz("America/Buenos_Aires")._d;
-    console.log("SENTAT DESP: ", request.body.sentAt);
     var sensorData = new SensorData(request.body);
     if(request.sensor.switch) sensorData = sensorData.switchData();
     sensorData.sensorId = request.params.sensor_id;
@@ -36,11 +34,9 @@ exports.create = (io) => {
         });
       } else {
         sensorData.count = (count + sum);
-        console.log("SENSORDATA: ", sensorData.sentAt);
         sensorData.save((error, data) => {
           if (error) return next(error);
           response.send(sensorData);
-          console.log("EMIT", request.sensor._id)
           io.emit(request.sensor._id.toString(), sensorData);
         });
       }
