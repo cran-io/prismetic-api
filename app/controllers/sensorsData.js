@@ -4,13 +4,13 @@ var Sensor     = require('../models/sensor');
 var SensorData = require('../models/sensorData');
 var SensorDataFail = require('../models/sensorDataFail');
 var ObjectId = (require('mongoose').Types.ObjectId);
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 //Create sensor_data.
 exports.create = (io) => {
   return (request, response, next) => {
     console.log("SENTAT: ", request.body.sentAt);
-    if(request.body.sentAt) request.body.sentAt = moment(request.body.sentAt).subtract(3, 'hours')._d;
+    if(request.body.sentAt) request.body.sentAt = moment(request.body.sentAt).tz("America/Buenos_Aires")._d;
     console.log("SENTAT DESP: ", request.body.sentAt);
     var sensorData = new SensorData(request.body);
     if(request.sensor.switch) sensorData = sensorData.switchData();
