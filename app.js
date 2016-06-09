@@ -1,13 +1,14 @@
-var express    = require('express');
-var app        = express();
-var server     = require('http').Server(app);
-var cors       = require('cors');
-var bodyParser = require('body-parser');
-var mongoose   = require('mongoose');
-var io         = require('socket.io')(server);
+var express        = require('express');
+var app            = express();
+var server         = require('http').Server(app);
+var cors           = require('cors');
+var bodyParser     = require('body-parser');
+var mongoose       = require('mongoose');
+var io             = require('socket.io')(server);
 var expressSession = require('express-session');
-var morgan = require('morgan');
-var CronJob = require('cron').CronJob;
+var MongoStore     = require('connect-mongo')(expressSession);
+var morgan         = require('morgan');
+var CronJob        = require('cron').CronJob;
 
 mongoose.connect('mongodb://localhost/raspberry-api-dev');
 mongoose.set('debug', true);
@@ -28,11 +29,18 @@ app.use(bodyParser.json());
 app.use(morgan('dev'))
 
 //Passport Session
+app.use(expressSession({
+  secret: 'myPrismaticApiKey',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {maxAge:  3600000},
+  store: new MongoStore({mongooseConnection: mongoose.connection}, function(err) {
+    console.log(err || "Connect mongodb setup ok");
+  })
+}));
 var passport = require('./app/config/passport')
-app.use(expressSession({secret: 'myPrismaticApiKey', resave: true, saveUninitialized: true}));
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 //Defining Routes.
 var routes = require('./app/routes/routes')(io, passport);
@@ -50,8 +58,6 @@ io.on('connection', function(socket) {
 });
 
 if (process.env.NODE_ENV === 'production') {
-  // production error handler
-  // no stacktraces leaked to user
   app.use(function(err, req, res, next) {
     console.log(err)
     res.status(err.status || 500);

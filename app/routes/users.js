@@ -1,26 +1,19 @@
 var express          = require('express');
 var router           = express.Router();
-var userController = require('../controllers/users');
+var userController   = require('../controllers/users');
+var auth             = require('../config/auth');
 
 module.exports = () => {
 
   router.all('/accounts/:account_id/*', userController.account);
 
   // POST /api/accounts/:account_id/users
-  router.post('/accounts/:account_id/users', userController.create);
+  router.post('/accounts/:account_id/users', userController.checkMail, userController.create);
 
   // GET /api/accounts/:account_id/users
-  router.get('/accounts/:account_id/users', userController.index);
+  router.get('/accounts/:account_id/users', auth.isLoggedIn, userController.index);
 
   //POST /api/signin 
-
-  function isLoggedIn(req, res, next) {
-
-    if (req.isAuthenticated())
-      return next();
-
-    res.send(401);
-  } 
 
   return router;
 }

@@ -15,6 +15,14 @@ exports.create = (request, response, next) => {
   });
 };
 
+exports.checkMail = (request, response, next) => {
+  User.findOne({mail: request.body.mail}, (error, user) => {
+    if(error) _newError(error, 500, next);
+    if(user) _newError("Ya existe un usuario con ese mail", 400, next);
+    next();
+  });
+}
+
 exports.index = (request, response, next) => {
   request.account.populate('users', (error, account) => {
     if (error) return next(error);
@@ -24,14 +32,16 @@ exports.index = (request, response, next) => {
 
 exports.account = (request, response, next) => {
   Account.findById(request.params.account_id, (error, account) => {
-    if(error) return next(error);
-    if(!account) {
-      let err = new Error();
-      err.message = "No se encontro account con ese id"; 
-      err.status = 404;
-      return next(err);
-    };
+    if(error) _newError(error, 500, next);
+    if(!account) _newError("No se encontro un account con ese id", 404, next);
     request.account = account;
     next();
   });
 };
+
+let _newError = (message, status, next) => {
+  let err = new Error();
+  err.message = message;
+  err.status = status;
+  return next(err);
+}
