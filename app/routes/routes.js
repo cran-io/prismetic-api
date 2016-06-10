@@ -6,7 +6,7 @@ var sensorsDataController = require('../controllers/sensorsData');
 var moment = require('moment');
 
 module.exports = function(io, passport) {
-  router.post('/signin', passport.authenticate('local'), (req, res) => (res.send(200)));
+  router.post('/signin', passport.authenticate('local'), (req, res) => (res.json(req.user)));
   router.use('/api', require('./devices')());
   router.use('/api', require('./sensors')());
   router.use('/api', require('./users')());

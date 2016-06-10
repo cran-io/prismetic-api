@@ -1,14 +1,14 @@
-var express    = require('express');
-var app        = express();
-var server     = require('http').Server(app);
-var cors       = require('cors');
-var bodyParser = require('body-parser');
-var mongoose   = require('mongoose');
-var io         = require('socket.io')(server);
+var express        = require('express');
+var app            = express();
+var server         = require('http').Server(app);
+var cors           = require('cors');
+var bodyParser     = require('body-parser');
+var mongoose       = require('mongoose');
+var io             = require('socket.io')(server);
 var expressSession = require('express-session');
-var morgan = require('morgan');
-var CronJob = require('cron').CronJob;
-
+var MongoStore     = require('connect-mongo')(expressSession);
+var morgan         = require('morgan');
+var CronJob        = require('cron').CronJob;
 mongoose.connect('mongodb://localhost/raspberry-api-dev');
 mongoose.set('debug', true);
 // mongoose.connect('mongodb://raspi:raspi@ds011261.mlab.com:11261/iot-raspi-db');
@@ -22,17 +22,23 @@ mongoose.connection.on('disconnected', function () {
   console.log('Mongoose default connection disconnected'); 
 });
 
-app.use(cors());
+var corsOrigin = process.env.NODE_ENV === "production" ? "http://prismetic.cran.io" : "http://127.0.0.1:3000";
+app.use(cors({origin: corsOrigin, credentials: true}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 
 //Passport Session
 var passport = require('./app/config/passport')
-app.use(expressSession({secret: 'myPrismaticApiKey', resave: true, saveUninitialized: true}));
+app.use(expressSession({
+  secret: 'mySecretPrismeticKey',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {maxAge:  3600000},
+  store: new MongoStore({mongooseConnection: mongoose.connection})
+}));
 app.use(passport.initialize());
 app.use(passport.session());
-
 
 //Defining Routes.
 var routes = require('./app/routes/routes')(io, passport);
@@ -49,9 +55,8 @@ io.on('connection', function(socket) {
   });
 });
 
+//Logger middleware.
 if (process.env.NODE_ENV === 'production') {
-  // production error handler
-  // no stacktraces leaked to user
   app.use(function(err, req, res, next) {
     console.log(err)
     res.status(err.status || 500);
@@ -69,6 +74,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
+//Cron job at 01:00 am.
 var job = new CronJob('00 00 1 * * *', () => {
   require('./app/services/cron').run();
 }, () => {

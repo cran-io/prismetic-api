@@ -22,7 +22,7 @@ exports.create = (request, response, next) => {
 };
 
 exports.index = (request, response, next) => {
-  Device.find((error, devices) => {
+  Device.find({_id: {$in: request.deviceIds}}, (error, devices) => {
     if(error) return next(error);
     response.send(devices);
   });
@@ -78,16 +78,31 @@ exports.graphSensorData = (request, response, next) => {
 
 //===== MIDDLEWARES =====
 
+
+//Verify that the user belongs to a valid account and save that devices ids to req.devicesIds. Not POST.
+exports.verifyAccountUser = (request, response, next) => {
+  if(request.method === "POST") return next();
+  Account.findOne({users: request.user._id}, (error, account) => {
+    if(error) return _newError(error, 500, next);
+    request.deviceIds = account.devices || [];
+    next();
+  });
+};
+
+//Check if the :device_id belongs to User. Not POST.
+exports.verifyDeviceUser = (request, response, next) => {
+  if(request.method === "POST") return next();
+  if(!!request.deviceIds.find(deviceId => deviceId == request.params.device_id))
+    return next();
+  else
+    return _newError("No tienes permisos para ver el device", 401, next);
+}
+
 //Get device and save it on request
 exports.deviceMiddleware = (request, response, next) => {
   Device.findById(request.params.device_id, (error, device) => {
     if(error) return next(error);
-    if(!device) {
-      let err = new Error();
-      err.message = "No se encontro el device con ese id"; 
-      err.status = 404;
-      return next(err);
-    }
+    if(!device) return _newError("No se encontro el device con ese id", 404, next);
     request.device = device;
     next();
   });
@@ -96,11 +111,7 @@ exports.deviceMiddleware = (request, response, next) => {
 //Find device by mac before create, if exists return the old one.
 exports.findDeviceMac = (request, response, next) => {
   Device.findOne({mac: request.body.mac}, (error, device) => {
-    if(error) {
-      let err = new Error();
-      err.message = error;
-      return next(error);
-    }
+    if(error) return _newError(error, 500, next);
     if(!device) return next();
     return response.send(device);
   });
@@ -108,20 +119,10 @@ exports.findDeviceMac = (request, response, next) => {
 
 //Find account and save it to request.
 exports.findAccount = (request, response, next) => {
-  if(!request.body.account) {
-    let err = new Error();
-    err.message = "Falta el campo: Account";
-    err.status = 400;
-    return next(err);
-  }
+  if(!request.body.account) return _newError("Falta el campo: Account", 400, next);
   Account.findById(request.body.account, (error, account) => {
-    if(error) return next(new Error(error));
-    if(!account) {
-      let err = new Error();
-      err.status = 400;
-      err.message = "No se encontro un Account con ese id";
-      return next(err)
-    }
+    if(error) return _newError(error, 500, next);
+    if(!account) return _newError("No se encontro un Account con ese id", 400, next);
     request.account = account;
     next();
   });  
@@ -165,7 +166,6 @@ var _processCount = (countStructure) => {
     first = false;
     previousData = Object.assign({}, sensorData);
     newStructure.push(sensorData);
-    // console.log("newStructure: ",newStructure)
     return newStructure;
   }, []);
 }
@@ -202,4 +202,11 @@ var _processAverage = (averageStructure, interval) => {
     previous = i;
   }
   return {average, metadata}
+}
+
+let _newError = (message, status, next) => {
+  let err = new Error();
+  err.message = message;
+  err.status = status;
+  return next(err);
 }

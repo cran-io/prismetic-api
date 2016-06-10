@@ -7,12 +7,10 @@ module.exports = () =>{
     usernameField: 'mail',
     passwordField: 'password'
   }, (username, password, cb) => {
-    console.log(username, password)
     User.findOne({mail: username}, {password: 1, name: 1, lastName: 1, mail: 1, createdAt: 1}, (err, user) => {
-      console.log(user)
       if (err) { return cb(err); }
-      if (!user) { return cb(null, false); }
-      if (!bcrypt.compareSync(password, user.password)) { return cb(null, false); }
+      if (!user) { return cb(null, false, {message: "Not user with that mail"}); }
+      if (!bcrypt.compareSync(password, user.password)) { return cb(null, false, {message: "Invalid password"}); }
       return cb(null, user);
     });
   }));
