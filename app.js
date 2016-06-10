@@ -9,7 +9,6 @@ var expressSession = require('express-session');
 var MongoStore     = require('connect-mongo')(expressSession);
 var morgan         = require('morgan');
 var CronJob        = require('cron').CronJob;
-
 mongoose.connect('mongodb://localhost/raspberry-api-dev');
 mongoose.set('debug', true);
 // mongoose.connect('mongodb://raspi:raspi@ds011261.mlab.com:11261/iot-raspi-db');
@@ -23,22 +22,21 @@ mongoose.connection.on('disconnected', function () {
   console.log('Mongoose default connection disconnected'); 
 });
 
-app.use(cors());
+var corsOrigin = process.env.NODE_ENV === "production" ? "http://prismetic.cran.io" : "http://127.0.0.1:3000";
+app.use(cors({origin: corsOrigin, credentials: true}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 
 //Passport Session
+var passport = require('./app/config/passport')
 app.use(expressSession({
-  secret: 'myPrismaticApiKey',
+  secret: 'mySecretPrismeticKey',
   resave: true,
   saveUninitialized: true,
   cookie: {maxAge:  3600000},
-  store: new MongoStore({mongooseConnection: mongoose.connection}, function(err) {
-    console.log(err || "Connect mongodb setup ok");
-  })
+  store: new MongoStore({mongooseConnection: mongoose.connection})
 }));
-var passport = require('./app/config/passport')
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -57,6 +55,7 @@ io.on('connection', function(socket) {
   });
 });
 
+//Logger middleware.
 if (process.env.NODE_ENV === 'production') {
   app.use(function(err, req, res, next) {
     console.log(err)
@@ -75,6 +74,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
+//Cron job at 01:00 am.
 var job = new CronJob('00 00 1 * * *', () => {
   require('./app/services/cron').run();
 }, () => {
