@@ -27,8 +27,9 @@ exports.create = (request, response, next) => {
 
 exports.update = (request, response, next) => {
   let fields = new Set(["name", "switch", "flow"]);
-  for(let key in request.body) {
-    if(fields.has(key)) request.sensor[key] = request.body[key];
+  if(!request.body.sensor) return next({status: 400, message: "Invalid arguments"});
+  for(let key in request.body.sensor) {
+    if(fields.has(key)) request.sensor[key] = request.body.sensor[key];
   }
   request.sensor.save((error, sensor) => {
     if(error) return next(error);
