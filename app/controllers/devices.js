@@ -48,27 +48,27 @@ exports.graphSensorData = (request, response, next) => {
     sensorId: {$in: request.query.sensors || []},
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   };
-  let structure = _structureData(request.query.dateFrom, request.query.dateTo, interval, {count: 0, cant: 0, enter: 0, exit: 0});
+  // let structure = _structureData(request.query.dateFrom, request.query.dateTo, interval, {count: 0, cant: 0, enter: 0, exit: 0});
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
   let metadata = {enter: 0, exit: 0}
   let count = [];
   //Group data in structure.
   stream.on('data', data => {
     count.push(data);
-    let key = _findKeyofStructure(structure, data.sentAt);
-    structure[key].count += data.count;
-    structure[key].sentAt = data.sentAt.toString();
-    structure[key].cant ++;
-    structure[key].enter += Number(data.enter);
-    structure[key].exit += Number(data.exit);
+    // let key = _findKeyofStructure(structure, data.sentAt);
+    // structure[key].count += data.count;
+    // structure[key].sentAt = data.sentAt.toString();
+    // structure[key].cant ++;
+    // structure[key].enter += Number(data.enter);
+    // structure[key].exit += Number(data.exit);
   });
   //Process data.
   stream.on('end', () => {
     count = _processCount(count);
-    let data = _processAverage(structure, interval);
+    // let data = _processAverage(structure, interval);
     let average = data.average;
     let metadata = data.metadata;
-    response.send({data: {average, count}, metadata: metadata});
+    response.send({data: {count}, metadata: metadata});
   });
   //Error data
   stream.on('error', (error) => {
