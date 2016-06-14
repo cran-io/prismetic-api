@@ -6,6 +6,7 @@ var bodyParser     = require('body-parser');
 var mongoose       = require('mongoose');
 var io             = require('socket.io')(server);
 var expressSession = require('express-session');
+var compression    = require('compression')
 var MongoStore     = require('connect-mongo')(expressSession);
 var morgan         = require('morgan');
 var CronJob        = require('cron').CronJob;
@@ -27,6 +28,7 @@ app.use(cors({origin: corsOrigin, credentials: true}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
+app.use(compression())
 
 //Passport Session
 var passport = require('./app/config/passport')
