@@ -64,11 +64,11 @@ exports.graphSensorData = (request, response, next) => {
   });
   //Process data.
   stream.on('end', () => {
-    count = _processCount(count);
+    let resp = _processCount(count, metadata);
     // let data = _processAverage(structure, interval);
-    let average = data.average;
-    let metadata = data.metadata;
-    response.send({data: {count}, metadata: metadata});
+    // let average = data.average;
+    // let metadata = data.metadata;
+    response.send({data: {count: resp.data}, metadata: resp.metadata});
   });
   //Error data
   stream.on('error', (error) => {
@@ -155,10 +155,12 @@ var _findKeyofStructure = (structure, sentAt) => {
 }
 
 // Add allways de sensorData previous and put the new sentAt date for graph.
-var _processCount = (countStructure) => {
+var _processCount = (countStructure, metadata) => {
   var first = true;
   let previousData;
-  return countStructure.reduce((newStructure, sensorData) => {
+  let data = countStructure.reduce((newStructure, sensorData) => {
+    metadata.enter += Number(sensorData.enter);
+    metadata.exit += Number(sensorData.exit);
     if(!first) {
       previousData.sentAt = moment(sensorData.sentAt).subtract(1, 'ms')._d;
       newStructure.push(previousData);
@@ -168,6 +170,7 @@ var _processCount = (countStructure) => {
     newStructure.push(sensorData);
     return newStructure;
   }, []);
+  return {data: data, metadata: metadata} 
 }
 
 
