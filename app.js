@@ -10,7 +10,6 @@ var compression    = require('compression')
 var MongoStore     = require('connect-mongo')(expressSession);
 var morgan         = require('morgan');
 var CronJob        = require('cron').CronJob;
-var shrinkRay      = require('shrink-ray');
 mongoose.connect('mongodb://localhost/raspberry-api-dev');
 mongoose.set('debug', true);
 // mongoose.connect('mongodb://raspi:raspi@ds011261.mlab.com:11261/iot-raspi-db');
@@ -29,8 +28,7 @@ app.use(cors({origin: corsOrigin, credentials: true}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
-app.use(shrinkRay());
-// app.use(compression())
+app.use(compression())
 
 //Passport Session
 var passport = require('./app/config/passport')
