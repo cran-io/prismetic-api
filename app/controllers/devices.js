@@ -49,12 +49,6 @@ exports.graphSensorData = (request, response, next) => {
     sentAt: {$gte: request.query.dateFrom, $lte: request.query.dateTo}
   };
   // let structure = _structureData(request.query.dateFrom, request.query.dateTo, interval, {count: 0, cant: 0, enter: 0, exit: 0});
-  console.time("Without Stream")
-  SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).exec((error, auxiliar) => {
-    console.log("Aux", auxiliar.length)
-    console.timeEnd("Without Stream");
-  });
-  console.time("Stream");
   let stream = SensorData.find(query).select("sentAt enter exit count -_id").sort({sentAt: 1}).lean().stream();
   let metadata = {enter: 0, exit: 0}
   let count = [];
@@ -70,8 +64,6 @@ exports.graphSensorData = (request, response, next) => {
   });
   //Process data.
   stream.on('end', () => {
-    console.timeEnd("Stream");
-    console.log("St", count.length)
     let resp = _processCount(count, metadata);
     // let data = _processAverage(structure, interval);
     // let average = data.average;
