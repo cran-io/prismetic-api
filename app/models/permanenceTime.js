@@ -6,9 +6,9 @@ var permanenceTime = new Schema({
     type: Number,
     default: 0
   },
-  sensorId: {
+  deviceId: {
     type: Schema.Types.ObjectId,
-    ref: 'Sensor',
+    ref: 'Device',
     required: true
   },
   createdAt: {

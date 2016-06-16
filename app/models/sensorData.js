@@ -31,6 +31,10 @@ var sensorDataSchema = new Schema({
   sensorId: {
     type: Schema.Types.ObjectId,
     ref: 'Sensor'
+  },
+  deviceId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Device'
   }
 });
 

@@ -13,12 +13,13 @@ exports.create = (io) => {
     var sensorData = new SensorData(request.body);
     if(request.sensor.switch) sensorData = sensorData.switchData();
     sensorData.sensorId = request.params.sensor_id;
+    sensorData.deviceId = request.params.device_id;
     if(sensorData.validateSync()) {
       error.status = 400;
       return next(error);
     }
     //Find last sensorData count;
-    SensorData.findOneAndUpdate({sensorId: request.params.sensor_id, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
+    SensorData.findOneAndUpdate({deviceId: request.params.device_id, read: false, sentAt: {$lte: sensorData.sentAt}}, {$set: {read: true}}, {sort: {sentAt: 1}}, (error, oldSensor) => {
       if(error) return next(error);
       let sum = sensorData.enter - sensorData.exit;
       let count = _resetCount(request.device.resetTime, oldSensor) ? 0 : oldSensor.count;
