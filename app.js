@@ -83,5 +83,5 @@ var job = new CronJob('00 00 1 * * *', () => {
   console.log("[CronJob] Stops");
 });
 
-require('./app/services/cron').run();
+// require('./app/services/cron').run();
 job.start();
