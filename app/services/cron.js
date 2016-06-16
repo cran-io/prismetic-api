@@ -15,17 +15,19 @@ exports.run = () => {
 
 var _sensorMetric = (sensor) => {
   let date = moment().subtract(1, 'days');
+  console.log("Date before: " + date)
   let start = date.startOf('day').toISOString();
   let end = date.endOf('day').toISOString();
   SensorData.find({sensorId: ObjectId(sensor._id), sentAt: {$gte: start, $lte: end}}, {}, {sort: {sentAt: 1}}, (error, sensorDatas) => {
     if(error) return console.log("[ERROR] Sensor Metric", error);
-    console.log("Process Sensor Data for sensor id: ", sensor._id);
     let data = _processSensorData(sensorDatas, sensor._id);
     let permanenceTime = new PermanenceTime(data);
     permanenceTime.createdAt = date;
+    console.log("date after: " + date);
+    console.log("createdAt after: " + permanenceTime.createdAt);
     permanenceTime.save((error, permanenceTime) => {
       if(error) return console.log("[ERROR] Sensor Metric permanenceTime", error);
-      console.log("[Sensor Metric][OK]", permanenceTime);
+      console.log("[Sensor Metric][OK]", JSON.stringify(permanenceTime));
     });
   });
 };
