@@ -14,8 +14,7 @@ exports.run = () => {
 }
 
 var _sensorMetric = (device) => {
-  let date = moment();
-  // let date = moment().subtract(1, 'days');
+  let date = moment().subtract(1, 'days');
   let start = date.startOf('day').toISOString();
   let end = date.endOf('day').toISOString();
   SensorData.find({deviceId: ObjectId(device._id), sentAt: {$gte: start, $lte: end}}, {}, {sort: {sentAt: 1}}, (error, sensorDatas) => {
